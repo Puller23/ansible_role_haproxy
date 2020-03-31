@@ -1,0 +1,53 @@
+---
+    - name: Ensure HAProxy is installed.
+      package: name=haproxy state=present
+
+    - name: Copy HAProxy configuration in place.
+      template:
+        src: haproxy.cfg.j2
+        dest: /etc/haproxy/haproxy.cfg
+        mode: 0644
+        validate: haproxy -f %s -c -q
+      notify: restart haproxy
+    
+    - name: Create SSL Directory
+      file:
+        path: "{{ haproxy_ssl_folder }}"
+        state: directory
+
+    - name: Create ssl cert files
+      no_log: true
+      copy:
+        dest: "{{ haproxy_ssl_folder }}/{{ item.filename }}"
+        content: |
+            {{ item.cert }}
+      with_items: "{{ haproxy_ca_certificates }} "
+
+    - name: Create tls cert files
+      no_log: true
+      copy:
+        dest: "{{ haproxy_ssl_folder }}/{{ item.filename }}"
+        content: |
+            {{ item.cert }}
+            {{ item.key }}
+      with_items: "{{ haproxy_tls_certificates }} "
+
+    - name: check if selinux is running
+      command: getenforce
+      register: sestatus
+      changed_when: false
+
+    - name: check if selinux haproxy is enabled
+      command: "getsebool {{ haproxy_selinux_cmd }}"
+      register: seenabled
+      when: '"Enforcing" in sestatus.stdout'
+
+    - name: enable haproxy to connect to all TCP ports
+      command: "setsebool -P {{ haproxy_selinux_cmd }} 1"
+      when: 
+        - '"Enforcing" in sestatus.stdout'
+        - '"off" in seenabled.stdout'
+        - haproxy_selinux_enable
+
+    - name: Ensure HAProxy is started and enabled on boot.
+      service: name=haproxy state=started enabled=yes

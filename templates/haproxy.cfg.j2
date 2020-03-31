@@ -1,0 +1,39 @@
+# {{ansible_managed}}
+
+global
+{% if haproxy_chroot != '' %}
+  chroot {{ haproxy_chroot }}
+{% endif %}
+  user {{ haproxy_user }}
+  group {{ haproxy_group }}
+  daemon
+  log  127.0.0.1 local2
+  maxconn  4000
+  pidfile  /var/run/haproxy.pid
+  stats  socket /var/lib/haproxy/stats mode 0600 level admin
+  tune.ssl.default-dh-param  2048
+{% for global_var in haproxy_global_vars %}
+  {{ global_var }}
+{% endfor %}
+
+defaults
+{% for default_var in haproxy_default_vars %}
+  {{ default_var }}
+{% endfor %}
+
+{% for pool in haproxy_listen_pools %}
+listen {{ pool.poolname }}
+    bind 127.0.0.1:{{ pool.listen_ports }} {{ pool.bind_options|join(' ') }}
+    mode {{ pool.mode }}
+    balance {{ pool.balance }}
+{% if pool.cookies is defined and pool.cookies != [] %}
+    cookie {{ pool.cookies|join(' ') }}
+{% endif %}
+{% for option in pool.options %}
+    option {{ option }}
+{% endfor %}
+{% for server in pool.server_names %}
+    server {{ server.server_name }} {{ server.ipadress }}:{{ pool.backend_ports }} {{ pool.member_options|join(' ') }}
+{% endfor %}
+
+{% endfor %}
