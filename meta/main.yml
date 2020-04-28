@@ -1,0 +1,16 @@
+---
+dependencies: []
+
+galaxy_info:
+  author: Puller23
+  description: HAProxy installation and configuration.
+  license: "license (BSD, MIT)"
+  min_ansible_version: 2.2
+  platforms:
+    - name: EL
+      versions:
+        - 6
+        - 7
+  galaxy_tags:
+    - haproxy
+    - loadbalancer
