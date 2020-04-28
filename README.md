@@ -26,7 +26,7 @@ Default user and group under which HAProxy should run.
     haproxy_selinux_cmd: haproxy_connect_any
     haproxy_selinux_enable: true
 
-When selinux in enabled, it is nessasary to allow haproxy to connect for all TCP Ports. YOu can disable this, set `haproxy_selinux_enable: false`
+When selinux in enabled, it is nessasary to allow haproxy to connect for all TCP Ports. You can disable this, set `haproxy_selinux_enable: false`
 
     haproxy_default_vars: 
         - 'log          global'
@@ -55,6 +55,10 @@ Default Vars for HAProxy.
 
 A list of extra global variables to add to the global configuration section inside `haproxy.cfg.`
 
+    define_cookies: true
+
+Cookies option can be add
+
     haproxy_tls_certificates:
         - filename: oer-poc.pem
           key: !vault |
@@ -80,7 +84,7 @@ Create authentication cert an key. This file will be saved in the `haproxy_ssl_f
                 YkSjXk3vKF0/lG8=
                 -----END CERTIFICATE-----
 
-Create ca authentication file
+Creates ca authentication file
 
 ## Dependencies
 

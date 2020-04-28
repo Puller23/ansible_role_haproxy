@@ -33,7 +33,7 @@ listen {{ pool.poolname }}
     option {{ option }}
 {% endfor %}
 {% for server in pool.server_names %}
-    server {{ server.server_name }} {{ server.ipadress }}:{{ pool.backend_ports }} {{ pool.member_options|join(' ') }}
+    server {{ server.server_name }} {{ server.ipadress }}:{{ pool.backend_ports }} {% if pool.define_cookies %}cookie {{ server.server_name }}{% endif %} {{ pool.member_options|join(' ') }}
 {% endfor %}
 
 {% endfor %}
